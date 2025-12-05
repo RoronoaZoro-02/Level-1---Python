@@ -1,1 +1,81 @@
 Chatbot Agent
+
+
+"""
+AI Command-Line Chatbot Agent
+Secure, clean, intelligent, and good-looking
+"""
+
+import re
+import sys
+try:
+    from colorama import Fore, Style, init
+    init()
+    COLORAMA = True
+except ImportError:
+    COLORAMA = False
+
+OFFENSIVE_WORDS = [
+    'fuck', 'shit', 'bitch', 'asshole', 'bastard', 'dick', 'crap', 'damn', 'nigger',
+    'piss', 'cunt', 'fag', 'retard', 'slut', 'whore', 'porn', 'sex', 'idiot', 'moron'
+]
+
+REPLACEMENT = "[censored]"
+
+HELP_TOPICS = {
+    'greet': "Hello! I'm your secure AI assistant. How can I help you today?",
+    'help': "You can ask me general questions, get instructions, or guidance for your tasks.",
+    'security': "Your privacy is protected. I'm designed to avoid dangerous actions and foul language.",
+    'task': "Describe your task and I'll try my best to help!"
+}
+
+# Simple intelligence for Q&A
+def get_response(user_input):
+    inp = user_input.strip().lower()
+    if any(word in inp for word in ['hello', 'hi', 'hey']):
+        return HELP_TOPICS['greet']
+    if 'help' in inp:
+        return HELP_TOPICS['help']
+    if 'security' in inp:
+        return HELP_TOPICS['security']
+    if 'task' in inp or 'do' in inp or 'how' in inp:
+        return HELP_TOPICS['task']
+    # Extend: Add more intelligent answers here
+    return "I'm here to help! Ask me anything." if inp else "Please type something."
+
+# Foul language filter
+def filter_language(text):
+    words = OFFENSIVE_WORDS
+    pattern = re.compile(r'\b(' + '|'.join(re.escape(w) for w in words) + r')\b', re.IGNORECASE)
+    return pattern.sub(REPLACEMENT, text)
+
+# UI - color
+def ai_print(text):
+    if COLORAMA:
+        print(Fore.CYAN + Style.BRIGHT + text + Style.RESET_ALL)
+    else:
+        print(text)
+
+# Main chat loop
+def main():
+    ai_print("="*50)
+    ai_print("AI Secure Chatbot Agent")
+    ai_print("Type 'exit' to leave. Let's chat securely!")
+    ai_print("="*50)
+    while True:
+        try:
+            user_input = input(Fore.GREEN + "You: " + Style.RESET_ALL if COLORAMA else "You: ")
+            if user_input.strip().lower() == 'exit':
+                ai_print("Goodbye! Stay safe.")
+                break
+            user_input_filtered = filter_language(user_input)
+            response = get_response(user_input_filtered)
+            ai_print("Agent: " + response)
+        except KeyboardInterrupt:
+            ai_print("\nGoodbye!")
+            break
+        except Exception as e:
+            ai_print(f"Error: {e}. Please try again.")
+
+if __name__ == "__main__":
+    main()
